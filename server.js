@@ -24,6 +24,12 @@ app.post("/register", (req, res) => {
       return res.status(500).send("Error parsing JSON");
     }
 
+    // Check if phone already exists
+    const exists = clients.some((c) => c.phone === newClient.phone);
+    if (exists) {
+      return res.status(409).send("User already registered. Please login.");
+    }
+
     clients.push(newClient);
 
     fs.writeFile(DATA_FILE, JSON.stringify(clients, null, 2), (err) => {
