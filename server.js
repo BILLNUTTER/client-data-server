@@ -15,7 +15,7 @@ const CSV_FILE = path.join(DATA_DIR, "clients.csv");
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "billnutterbots@gmail.com",
+    user: "botsbillnutter@gmail.com",
     pass: "nutterbots",
   },
 });
@@ -93,7 +93,7 @@ app.post("/register", async (req, res) => {
     // Send welcome email only if email provided
     if (email) {
       const mailOptions = {
-        from: "billnutterbots@gmail.com",
+        from: "botsbillnutter@gmail.com",
         to: email,
         subject: "Welcome to Nutter Services",
         text: `Hi ${name}, you have been registered. Your service expires on ${client.expiryDate}.`,
