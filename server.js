@@ -33,6 +33,16 @@ app.post("/register", (req, res) => {
   });
 });
 
+// DOWNLOAD clients.json FILE
+app.get("/download-data", (req, res) => {
+  res.download(DATA_FILE, "clients.json", (err) => {
+    if (err) {
+      console.error("Download error:", err);
+      res.status(500).send("Download failed.");
+    }
+  });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
