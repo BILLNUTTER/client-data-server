@@ -10,8 +10,8 @@ const PORT = process.env.PORT || 3000;
 const DATA_DIR = path.join(__dirname, "data");
 const JSON_FILE = path.join(DATA_DIR, "clients.json");
 const CSV_FILE = path.join(DATA_DIR, "clients.csv");
+const LOGIN_FILE = path.join(DATA_DIR, "login-history.json");
 
-// Replace with your actual Gmail and App Password
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -23,17 +23,14 @@ const transporter = nodemailer.createTransport({
 app.use(cors());
 app.use(express.json());
 
-// Ensure data directory and files exist (use fs promises)
 async function ensureFiles() {
   try {
     await fs.mkdir(DATA_DIR, { recursive: true });
-
     try {
       await fs.access(JSON_FILE);
     } catch {
       await fs.writeFile(JSON_FILE, "[]");
     }
-
     try {
       await fs.access(CSV_FILE);
     } catch {
@@ -41,6 +38,11 @@ async function ensureFiles() {
         CSV_FILE,
         "Name,Phone,Email,RegistrationDate,ExpiryDate\n"
       );
+    }
+    try {
+      await fs.access(LOGIN_FILE);
+    } catch {
+      await fs.writeFile(LOGIN_FILE, "[]");
     }
   } catch (err) {
     console.error("Error ensuring data files:", err);
@@ -50,28 +52,22 @@ async function ensureFiles() {
 
 ensureFiles();
 
-// Register endpoint
 app.post("/register", async (req, res) => {
   const { name, phone, email } = req.body;
-
-  if (!name || !phone) {
+  if (!name || !phone)
     return res.status(400).json({ error: "Name and phone are required." });
-  }
 
   try {
     const data = await fs.readFile(JSON_FILE, "utf8");
     const clients = JSON.parse(data);
-
-    if (clients.some((c) => c.phone === phone)) {
+    if (clients.some((c) => c.phone === phone))
       return res
         .status(409)
         .json({ error: "User already registered. Please login." });
-    }
 
     const now = new Date();
     const expiry = new Date(now);
     expiry.setDate(now.getDate() + 30);
-
     const client = {
       name,
       phone,
@@ -82,15 +78,12 @@ app.post("/register", async (req, res) => {
     };
 
     clients.push(client);
-
     await fs.writeFile(JSON_FILE, JSON.stringify(clients, null, 2));
-
     const csvRow = `${name},${phone},${email || ""},${
       client.registrationDate
     },${client.expiryDate}\n`;
     await fs.appendFile(CSV_FILE, csvRow);
 
-    // Send welcome email only if email provided
     if (email) {
       const mailOptions = {
         from: "botsbillnutter@gmail.com",
@@ -98,7 +91,6 @@ app.post("/register", async (req, res) => {
         subject: "Welcome to Nutter Services",
         text: `Hi ${name}, you have been registered. Your service expires on ${client.expiryDate}.`,
       };
-
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) console.error("Email error:", error);
         else console.log("Welcome email sent:", info.response);
@@ -112,7 +104,6 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// Login endpoint
 app.post("/login", async (req, res) => {
   const { phone } = req.body;
   if (!phone)
@@ -121,15 +112,22 @@ app.post("/login", async (req, res) => {
   try {
     const data = await fs.readFile(JSON_FILE, "utf8");
     const clients = JSON.parse(data);
-
     const clientIndex = clients.findIndex((c) => c.phone === phone);
+
     if (clientIndex !== -1) {
       const loginTime = new Date().toISOString();
       clients[clientIndex].loginHistory =
         clients[clientIndex].loginHistory || [];
       clients[clientIndex].loginHistory.push(loginTime);
 
-      // Update login history file async, but don't block response
+      const loginLog = await fs.readFile(LOGIN_FILE, "utf8");
+      const loginData = JSON.parse(loginLog);
+      loginData.push({
+        phone,
+        name: clients[clientIndex].name,
+        time: loginTime,
+      });
+      await fs.writeFile(LOGIN_FILE, JSON.stringify(loginData, null, 2));
       fs.writeFile(JSON_FILE, JSON.stringify(clients, null, 2)).catch((e) =>
         console.error("Failed saving login history:", e)
       );
@@ -146,7 +144,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Download JSON
 app.get("/download-data", (req, res) => {
   res.download(JSON_FILE, "clients.json", (err) => {
     if (err) {
@@ -156,7 +153,6 @@ app.get("/download-data", (req, res) => {
   });
 });
 
-// Download CSV
 app.get("/download-csv", (req, res) => {
   res.download(CSV_FILE, "clients.csv", (err) => {
     if (err) {
@@ -166,16 +162,22 @@ app.get("/download-csv", (req, res) => {
   });
 });
 
-// Daily cron job to send expiry reminders 3 days in advance
+app.get("/download-logins", async (req, res) => {
+  res.download(LOGIN_FILE, "login-history.json", (err) => {
+    if (err) {
+      console.error("Login download error:", err);
+      res.status(500).send("Download failed.");
+    }
+  });
+});
+
 cron.schedule("0 8 * * *", async () => {
   console.log("Running expiry reminder check...");
-
   try {
     const data = await fs.readFile(JSON_FILE, "utf8");
     const now = new Date();
     const reminderDate = new Date(now);
     reminderDate.setDate(now.getDate() + 3);
-
     const clients = JSON.parse(data);
 
     clients.forEach((client) => {
@@ -184,20 +186,16 @@ cron.schedule("0 8 * * *", async () => {
         expiry.toISOString().split("T")[0] ===
         reminderDate.toISOString().split("T")[0]
       ) {
-        if (!client.email) {
-          console.log(
+        if (!client.email)
+          return console.log(
             `Skipping reminder for ${client.name}, no email provided.`
           );
-          return;
-        }
-
         const mailOptions = {
           from: "billnutterbots@gmail.com",
           to: client.email,
           subject: "Your Nutter Bot is Expiring Soon",
           text: `Hi ${client.name}, just a reminder that your service expires on ${client.expiryDate}. Kindly renew at Ksh.100 to continue enjoying our services.`,
         };
-
         transporter.sendMail(mailOptions, (error, info) => {
           if (error) console.error("Reminder email failed:", error);
           else console.log("Reminder sent to:", client.email);
@@ -209,7 +207,6 @@ cron.schedule("0 8 * * *", async () => {
   }
 });
 
-// Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
