@@ -2,7 +2,9 @@
 
 This is a simple backend server built and maintained by **BILLNUTTER**.
 
-It handles client registration, storage, and basic automation logic like daily messages and payment reminders.
+![NUTTER🤪](https://cdn.openai.com/examples/image-gen/juice-wrld-half-face-clean.png)
+
+
 
 ---
 
