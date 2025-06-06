@@ -19,24 +19,6 @@ Click the button below to deploy this backend directly to Heroku:
 You can make your own copy by clicking here:  
 [**Fork this repo**](https://github.com/BILLNUTTER/client-data-server/fork)
 
-
-## 🛠 Features
-
-- 🧠 Tracks client data: name, phone, registration date, expiration date
-- 📂 Stores data in both `.json` and `.csv`
-- 📤 Download endpoints for JSON and CSV
-- 📅 Sends automatic reminders and daily messages
-- ☁️ Ready for deployment on **Heroku**
-
----
-
-## 🔧 Requirements
-
-Make sure your environment supports:
-
-- Node.js (or Python, depending on your backend language)
-- Proper `Procfile` and `package.json` or `requirements.txt`
-
 ---
 
 ## 🙏 Credits
