@@ -1,0 +1,27 @@
+{
+  "name": "Client Data Server",
+  "description": "A backend server that tracks and manages client data for BILLNUTTER.",
+  "repository": "https://github.com/BILLNUTTER/client-data-server",
+  "keywords": ["node", "express", "client", "automation"],
+  "env": {
+    "PORT": {
+      "description": "Port to run the server on",
+      "value": "3000"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "scripts": {
+    "postdeploy": "echo 'App successfully deployed!'"
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "addons": []
+}
