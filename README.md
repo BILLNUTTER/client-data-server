@@ -16,15 +16,9 @@ Click the button below to deploy this backend directly to Heroku:
 
 ## 🍴 Fork This Repo
 
-To make your own copy of this repository:
+You can make your own copy by clicking here:  
+[**Fork this repo**](https://github.com/BILLNUTTER/client-data-server/fork)
 
-1. Make sure you're **logged into GitHub**.
-2. Click the **"Fork"** button in the **top right** of this page.
-3. GitHub will create a copy under your account.
-
-> ⚠️ If the repo is private, forking won't be allowed unless it's made public or you are added as a collaborator.
-
----
 
 ## 🛠 Features
 
