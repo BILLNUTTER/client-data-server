@@ -1,8 +1,7 @@
 # 📦 Client Data Server
 
-This is a simple backend server built and maintained by **BILLNUTTER**.
+![NUTTER🤪](https://wall.alphacoders.com/big.php?i=1379790)
 
-![NUTTER🤪](https://cdn.openai.com/examples/image-gen/juice-wrld-half-face-clean.png)
 
 
 
