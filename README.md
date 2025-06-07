@@ -1,6 +1,6 @@
 # 📦 Client Data Server
 
-![Nutter🤪](https://raw.githubusercontent.com/BILLNUTTER/client-data-server/main/images(1).jpeg)
+![Nutter🤪](https://singersroom.com/wp-content/uploads/2023/04/10-Best-Juice-WRLD.jpg)
 
 
 
